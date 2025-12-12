@@ -36,3 +36,7 @@ dist-ssr
 *.sln
 *.sw?
 .vercel
+
+*.pkl
+*.pdf
+*.faiss

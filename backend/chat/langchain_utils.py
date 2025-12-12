@@ -9,6 +9,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnableLambda
 
 from langchain_community.vectorstores import FAISS
 
@@ -81,22 +82,17 @@ def build_vectorstore(file_paths: List[Path]) -> Tuple[FAISS, Path]:
 def load_vectorstore(store_path: Path) -> FAISS:
     """Load FAISS vectorstore from disk."""
     embeddings = get_embeddings()
-    try:
-        # Newer langchain-community versions support this kwarg
-        return FAISS.load_local(
-            str(store_path),
-            embeddings,
-            allow_dangerous_deserialization=True,
-        )
-    except TypeError:
-        # Older versions don't; fall back to the simpler signature
-        return FAISS.load_local(str(store_path), embeddings)
-
+    return FAISS.load_local(
+        str(store_path),
+        embeddings,
+        allow_dangerous_deserialization=True,
+    )
 
 
 def model_catalog():
     """Return a list of available models."""
     return [
+        {"id": "gemini-2.5-flash", "provider": "google", "label": "Google Gemini 2.5 Flash"},
         {"id": "gpt-4", "provider": "openai", "label": "OpenAI GPT-4"},
         {"id": "gpt-3.5-turbo", "provider": "openai", "label": "OpenAI GPT-3.5 Turbo"},
         {"id": "claude-3-haiku", "provider": "anthropic", "label": "Anthropic Claude 3 Haiku"},
@@ -123,7 +119,7 @@ def get_chat_model(model: str, api_key: str, temperature: float, max_tokens: int
         from langchain_openai import ChatOpenAI
 
         return ChatOpenAI(
-            openai_api_key=api_key,
+            api_key=api_key,
             model=model,
             temperature=temperature,
             max_tokens=max_tokens,
@@ -133,10 +129,10 @@ def get_chat_model(model: str, api_key: str, temperature: float, max_tokens: int
         from langchain_anthropic import ChatAnthropic
 
         return ChatAnthropic(
-            anthropic_api_key=api_key,
-            model_name=model,
+            api_key=api_key,
+            model=model,
             temperature=temperature,
-            max_tokens_to_sample=max_tokens,
+            max_tokens=max_tokens,
         )
 
     if provider == "google":
@@ -198,6 +194,9 @@ def build_qa_chain(
     vectorstore = load_vectorstore(store_path)
     retriever = vectorstore.as_retriever(search_kwargs={"k": 4})
 
+    def format_docs(docs: List[Document]) -> str:
+        return "\n\n".join(doc.page_content for doc in docs)
+
     # 2) LLM
     llm = get_chat_model(model, api_key, temperature, max_tokens)
 
@@ -221,7 +220,7 @@ def build_qa_chain(
     chain = (
         {
             "question": itemgetter("query"),
-            "context": itemgetter("query") | retriever,
+            "context": itemgetter("query") | retriever | RunnableLambda(format_docs),
         }
         | prompt
         | llm

@@ -10,7 +10,8 @@ class UploadedDocumentSerializer(serializers.ModelSerializer):
 
 
 class AgentConfigSerializer(serializers.Serializer):
-    model = serializers.CharField()
+    # Default Gemini 2.5 Flash
+    model = serializers.CharField(default="gemini-2.5-flash")
     api_key = serializers.CharField(write_only=True)
     temperature = serializers.FloatField(default=0.2)
     max_tokens = serializers.IntegerField(default=512)
@@ -23,7 +24,8 @@ class AgentConfigSerializer(serializers.Serializer):
 class ChatRequestSerializer(serializers.Serializer):
     session_id = serializers.CharField(required=False, allow_blank=True)
     message = serializers.CharField()
-    model = serializers.CharField()
+    # Default Gemini 2.5 Flash
+    model = serializers.CharField(default="gemini-2.5-flash")
     api_key = serializers.CharField(write_only=True)
     temperature = serializers.FloatField(default=0.2)
     max_tokens = serializers.IntegerField(default=512)
