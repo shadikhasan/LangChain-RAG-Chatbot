@@ -135,7 +135,6 @@ const CreateAgentPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-slate-900">Model & API Key</h3>
               <p className="text-sm text-slate-600">Name your agent, pick a provider/model, add an API key.</p>
             </div>
-            <span className="pill-muted">Step 1 of 2</span>
           </div>
 
           <label className="space-y-1 text-sm text-slate-700">
@@ -213,7 +212,6 @@ const CreateAgentPage: React.FC = () => {
               <h3 className="text-lg font-semibold text-slate-900">Knowledge Base</h3>
               <p className="text-sm text-slate-600">Upload or select documents for this agent.</p>
             </div>
-            <span className="pill-muted">Step 2 of 2</span>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">

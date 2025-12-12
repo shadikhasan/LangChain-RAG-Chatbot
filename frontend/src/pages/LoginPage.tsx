@@ -3,7 +3,7 @@ import { login } from "../lib/api";
 import { extractError } from "../lib/errors";
 
 type Props = {
-  onAuthenticated: (token: string) => Promise<void>;
+  onAuthenticated: (tokens: { access: string; refresh?: string }) => Promise<void>;
   onSwitch: () => void;
 };
 
@@ -18,7 +18,7 @@ const LoginPage: React.FC<Props> = ({ onAuthenticated, onSwitch }) => {
     setLoading(true);
     try {
       const res = await login(username, password);
-      await onAuthenticated(res.access);
+      await onAuthenticated({ access: res.access, refresh: res.refresh });
     } catch (err: any) {
       setError(extractError(err));
     } finally {

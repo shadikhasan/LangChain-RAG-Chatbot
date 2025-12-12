@@ -3,20 +3,19 @@ import { ChatMessage } from "../types";
 
 type Props = {
   onSend: (message: string) => Promise<string>;
-  onCreateAgent: () => Promise<void>;
   modelLabel?: string;
   docCount: number;
   systemPrompt: string;
   temperature: number;
   agentReady: boolean;
-  creatingAgent: boolean;
-  agentStatus: string;
-  agentError: string;
+  creatingAgent?: boolean;
+  agentStatus?: string;
+  agentError?: string;
+  onCreateAgent?: () => Promise<void>;
 };
 
 const ChatWindow: React.FC<Props> = ({
   onSend,
-  onCreateAgent,
   modelLabel,
   docCount,
   systemPrompt,
@@ -25,6 +24,7 @@ const ChatWindow: React.FC<Props> = ({
   creatingAgent,
   agentStatus,
   agentError,
+  onCreateAgent,
 }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
@@ -78,16 +78,18 @@ const ChatWindow: React.FC<Props> = ({
 
       {!agentReady && (
         <div className="flex flex-col gap-2 rounded-2xl border border-dashed border-amber-300 bg-amber-50 px-4 py-3">
-          <div className="text-sm font-semibold text-slate-800">No agent yet</div>
+          <div className="text-sm font-semibold text-slate-800">No agent selected</div>
           <div className="text-sm text-slate-600">
-            Build the agent with your current model, API key, and uploaded files before chatting.
+            Please select an agent to start chatting.
           </div>
           {agentError && <div className="text-sm text-rose-600">{agentError}</div>}
-          <div className="flex flex-wrap gap-2">
-            <button className="btn-primary" onClick={onCreateAgent} disabled={creatingAgent}>
-              {creatingAgent ? "Creating..." : "Create Agent"}
-            </button>
-          </div>
+          {onCreateAgent && (
+            <div className="flex flex-wrap gap-2">
+              <button className="btn-primary" onClick={onCreateAgent} disabled={creatingAgent}>
+                {creatingAgent ? "Creating..." : "Create Agent"}
+              </button>
+            </div>
+          )}
         </div>
       )}
       {agentReady && agentStatus && (

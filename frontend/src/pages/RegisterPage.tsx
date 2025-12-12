@@ -3,7 +3,7 @@ import { register } from "../lib/api";
 import { extractError } from "../lib/errors";
 
 type Props = {
-  onAuthenticated: (token: string) => Promise<void>;
+  onAuthenticated: (tokens: { access: string; refresh?: string }) => Promise<void>;
   onSwitch: () => void;
 };
 
@@ -19,7 +19,7 @@ const RegisterPage: React.FC<Props> = ({ onAuthenticated, onSwitch }) => {
     setLoading(true);
     try {
       const res = await register(username, password, email || undefined);
-      await onAuthenticated(res.access);
+      await onAuthenticated({ access: res.access, refresh: res.refresh });
     } catch (err: any) {
       setError(extractError(err));
     } finally {

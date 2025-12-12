@@ -58,7 +58,7 @@ const Navbar: React.FC<Props> = ({ username, active, onNavigate, onLogout }) => 
             {menuOpen && (
               <div className="absolute right-0 top-10 w-40 rounded-xl border border-slate-200 bg-white shadow-lg shadow-slate-900/10">
                 <button
-                  className="block w-full px-4 py-2 text-left text-sm text-slate-700 hover:bg-slate-50"
+                  className="block w-full px-4 py-2 text-left text-sm text-red-700 rounded-xl border border-slate-200 hover:bg-red-100"
                   onClick={() => {
                     setMenuOpen(false);
                     onLogout();

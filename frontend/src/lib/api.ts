@@ -16,6 +16,11 @@ export const fetchMe = async () => {
   return res.data;
 };
 
+export const refreshToken = async (refresh: string) => {
+  const res = await http.post("/auth/refresh", { refresh });
+  return res.data;
+};
+
 export const fetchModels = async (): Promise<ModelOption[]> => {
   const res = await http.get("/models");
   return res.data;
@@ -42,6 +47,10 @@ export const deleteDocument = async (id: number) => {
 export const fetchAgents = async (): Promise<Agent[]> => {
   const res = await http.get("/agents/");
   return res.data;
+};
+
+export const deleteAgent = async (id: string) => {
+  await http.delete(`/agents/${id}/`);
 };
 
 type CreateAgentPayload = {
