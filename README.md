@@ -2,6 +2,9 @@
 
 Full-stack chatbot starter that lets users choose an LLM provider, bring their own API key, upload knowledge-base files, and chat via Retrieval-Augmented Generation (RAG) built with LangChain.
 
+<img width="1181" height="937" alt="Screenshot_4" src="https://github.com/user-attachments/assets/e7fcdfd4-2e28-433c-9c42-b6719e137c9f" />
+
+
 ## Features
 - Model picker supporting OpenAI, Anthropic, Google, Groq, HuggingFace Hub, and Ollama entries.
 - Upload PDF/TXT/DOCX files; stored under `media/` with vector indexes in `vectorstores/` using FAISS.
