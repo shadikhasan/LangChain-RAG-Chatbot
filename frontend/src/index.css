@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900;
+    background-image: radial-gradient(circle at 25% 25%, rgba(108, 166, 155, 0.12), transparent 45%),
+      radial-gradient(circle at 80% 20%, rgba(135, 154, 199, 0.12), transparent 42%);
+    font-family: "Space Grotesk", "Inter", system-ui, sans-serif;
+  }
+}
+
+@layer components {
+  .card {
+    @apply rounded-2xl border border-slate-200 bg-white/80 shadow-lg shadow-slate-900/10 backdrop-blur;
+  }
+  .pill {
+    @apply inline-flex items-center rounded-full border border-accent/30 bg-accent-soft px-3 py-1 text-sm text-slate-800;
+  }
+  .pill-muted {
+    @apply inline-flex items-center rounded-full border border-slate-200 bg-white px-3 py-1 text-sm text-slate-500;
+  }
+  .chip {
+    @apply inline-flex items-center rounded-full border border-slate-200 bg-white/70 px-3 py-1 text-xs text-slate-700;
+  }
+  .input {
+    @apply w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 shadow-inner shadow-slate-900/5 focus:border-accent focus:outline-none;
+  }
+  .btn-primary {
+    @apply rounded-xl bg-gradient-to-r from-accent to-emerald-500 px-4 py-2 font-semibold text-white shadow-md shadow-accent/40 transition hover:shadow-lg hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60;
+  }
+  .btn-ghost {
+    @apply rounded-xl border border-slate-200 bg-white px-4 py-2 text-slate-800 shadow-sm transition hover:border-accent hover:text-accent;
+  }
+}

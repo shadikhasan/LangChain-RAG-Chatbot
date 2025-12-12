@@ -1,4 +1,4 @@
-import hashlib
+import shutil
 from pathlib import Path
 from typing import List, Optional, Tuple
 from operator import itemgetter
@@ -63,18 +63,20 @@ def get_embeddings(model_hint: Optional[str] = None):
     )
 
 
-def build_vectorstore(file_paths: List[Path]) -> Tuple[FAISS, Path]:
-    """Build FAISS vectorstore from documents."""
+def build_vectorstore(file_paths: List[Path], user_id: int, agent_id) -> Tuple[FAISS, Path]:
+    """Build FAISS vectorstore from documents for a specific user/agent."""
     documents = load_documents(file_paths)
     splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
     split_docs = splitter.split_documents(documents)
     embeddings = get_embeddings()
     vectorstore = FAISS.from_documents(split_docs, embeddings)
 
-    # Save with unique digest
-    sorted_names = "-".join(sorted([p.name for p in file_paths]))
-    digest = hashlib.sha256(sorted_names.encode("utf-8")).hexdigest()[:12]
-    store_path = Path(settings.VECTORSTORE_ROOT) / f"vs-{digest}"
+    root = Path(settings.VECTORSTORE_ROOT)
+    root.mkdir(parents=True, exist_ok=True)
+    store_path = root / f"user-{user_id}" / f"agent-{agent_id}"
+    if store_path.exists():
+        shutil.rmtree(store_path, ignore_errors=True)
+    store_path.mkdir(parents=True, exist_ok=True)
     vectorstore.save_local(str(store_path))
     return vectorstore, store_path
 
@@ -190,6 +192,9 @@ def build_qa_chain(
         chain = build_qa_chain(...)
         answer = chain.invoke({"query": "Your question here"})
     """
+    if not api_key:
+        raise ValueError("API key is required to build the chat model.")
+
     # 1) Load vectorstore + retriever
     vectorstore = load_vectorstore(store_path)
     retriever = vectorstore.as_retriever(search_kwargs={"k": 4})

@@ -11,10 +11,18 @@ type Props = {
 
 const ModelSelector: React.FC<Props> = ({ models, selected, apiKey, onChange, onApiKey }) => {
   return (
-    <div className="panel stack">
-      <h3>Model</h3>
-      <p className="subtle">Choose your provider and paste the corresponding API key.</p>
-      <select value={selected} onChange={(e) => onChange(e.target.value)}>
+    <div className="card p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs uppercase tracking-[0.2em] text-slate-500">Model</p>
+          <p className="text-sm text-slate-600">Choose provider and paste its API key.</p>
+        </div>
+      </div>
+      <select
+        className="input"
+        value={selected}
+        onChange={(e) => onChange(e.target.value)}
+      >
         <option value="">Select a model</option>
         {models.map((m) => (
           <option key={m.id} value={m.id}>
@@ -23,12 +31,13 @@ const ModelSelector: React.FC<Props> = ({ models, selected, apiKey, onChange, on
         ))}
       </select>
       <input
+        className="input"
         type="password"
         placeholder="API Key"
         value={apiKey}
         onChange={(e) => onApiKey(e.target.value)}
       />
-      <small>Provide the API key for the chosen provider.</small>
+      <p className="text-xs text-slate-500">Provide the API key for the chosen provider.</p>
     </div>
   );
 };

@@ -13,6 +13,20 @@ export type AgentSettings = {
   systemPrompt: string;
 };
 
+export type Agent = {
+  id: string;
+  name: string;
+  model: string;
+  temperature: number;
+  max_tokens: number;
+  system_prompt: string;
+  api_key: string;
+  store_path: string;
+  documents: UploadedDocument[];
+  created_at: string;
+  updated_at: string;
+};
+
 export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
