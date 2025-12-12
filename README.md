@@ -1,27 +1,25 @@
-# LangChain RAG Chatbot (Django + React)
+# RAG Workbench (Django + React + Tailwind)
 
-Full-stack chatbot starter that lets users choose an LLM provider, bring their own API key, upload knowledge-base files, and chat via Retrieval-Augmented Generation (RAG) built with LangChain.
-
-<img width="1181" height="937" alt="Screenshot_4" src="https://github.com/user-attachments/assets/e7fcdfd4-2e28-433c-9c42-b6719e137c9f" />
-
+Full-stack RAG workbench with JWT auth, agent management, document uploads, and LangChain-based vectorstores (FAISS). Users can create agents with their own API keys, attach documents, rebuild/reset knowledge bases, and chat securely.
 
 ## Features
-- Model picker supporting OpenAI, Anthropic, Google, Groq, HuggingFace Hub, and Ollama entries.
-- Upload PDF/TXT/DOCX files; stored under `media/` with vector indexes in `vectorstores/` using FAISS.
-- Agent controls: temperature, max tokens, and system prompt.
-- REST API: `/api/models`, `/api/upload/`, `/api/create-agent`, `/api/chat`.
-- React (TypeScript) frontend with ModelSelector, FileUploader, AgentSettings, and ChatWindow components.
+- JWT auth (access/refresh) with `/auth/login`, `/auth/register`, `/auth/refresh`, `/auth/me`.
+- Agent builder: provider/model picker (Google, OpenAI, Anthropic, Groq, Local), API key, temperature/max tokens, system prompt, doc selection.
+- Knowledge base controls: rebuild KB from selected docs, reset KB (clear docs and vectorstore) with confirmations and progress feedback.
+- Document management page: upload/delete/refresh PDF/TXT/DOC/DOCX.
+- Chat workspace: select an agent and chat using its vectorstore and settings.
+- UI: Vite + React + TypeScript + Tailwind; components include ModelSelector, FileUploader, AgentSettings, AgentEditModal, CreateAgent wizard, and ChatWindow.
 
 ## Prerequisites
 - Python 3.10+
 - Node.js 18+
-- (Optional) Ollama or provider-specific credentials depending on the chosen model
+- Provider API keys (set per agent)
 
 ## Backend Setup
 ```bash
 cd backend
 python -m venv .venv
-source .venv/bin/activate  # Windows: .venv\\Scripts\\activate
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 python manage.py migrate
 python manage.py runserver 0.0.0.0:8000
@@ -33,20 +31,31 @@ cd frontend
 npm install
 npm run dev
 ```
-The Vite dev server proxies `/api` requests to `http://localhost:8000`.
+Vite dev server proxies `/api` to `http://localhost:8000`.
 
-## API Flow
-1) `GET /api/models` – fetch available model options.  
-2) `POST /api/upload/` – multipart upload with `file`. Response contains `id`.  
-3) `POST /api/create-agent` – body: `model`, `api_key`, `document_ids`, `temperature`, `max_tokens`, `system_prompt`. Returns `session_id`.  
-4) `POST /api/chat` – body: `session_id`, `message`, `model`, `api_key` (and optional settings). Response: `answer`.
+## Key API Endpoints
+- Auth: `POST /api/auth/login`, `POST /api/auth/register`, `POST /api/auth/refresh`, `GET /api/auth/me`
+- Models: `GET /api/models`
+- Documents: `GET/POST /api/documents/`, `DELETE /api/documents/{id}/`
+- Agents:
+  - `GET/POST /api/agents/`
+  - `PATCH /api/agents/{id}/`
+  - `DELETE /api/agents/{id}/`
+  - `POST /api/agents/{id}/rebuild/` (rebuild vectorstore from linked docs)
+  - `POST /api/agents/{id}/reset_kb/` (clear docs + vectorstore)
+- Chat: `POST /api/chat` (body: `agent_id`, `message`, optional `api_key`)
+
+## Frontend Views
+- Create Agent: 2-step wizard (Model & Key → Knowledge Base) with provider tabs, advanced settings, doc upload/search/select.
+- Agents: list, search, edit (model/key/docs/settings), rebuild/reset KB with warnings/progress, delete with confirmation.
+- Documents: upload/delete/refresh and list docs.
+- Workspace: select an agent and chat; blocks send until an agent is chosen.
 
 ## Notes
-- Vectorstores and uploads are persisted to disk; clear `media/` or `vectorstores/` to reset.
-- Agent sessions are tracked in-memory (`chat.views.AGENT_SESSIONS`) for simplicity; swap for a database or cache for production.
-- HuggingFace embeddings (`sentence-transformers/all-MiniLM-L6-v2`) are used for FAISS indexing by default. Install GPU-accelerated FAISS if desired.
-- Extend providers by updating `chat/langchain_utils.py:model_catalog` and adding a matching `get_chat_model` branch.
+- Vectorstores are stored under `backend/vectorstores/`; uploads under `backend/media/`.
+- Rebuild KB regenerates the store from currently selected docs. Reset KB unlinks docs and deletes the store.
+- Ensure trailing slashes for DRF actions (e.g., `/agents/{id}/rebuild/`, `/agents/{id}/reset_kb/`).
 
 ## Security
-- The demo expects users to supply their own API keys per request. Do not expose real keys in a shared deployment.
-- Enable proper CORS settings and authentication before production use.
+- JWT auth enforced on all core endpoints (except models/auth).
+- API keys are stored per agent; provide the correct key for the chosen provider.
