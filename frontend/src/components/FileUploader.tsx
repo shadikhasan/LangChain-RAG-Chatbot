@@ -100,15 +100,17 @@ const FileUploader: React.FC<Props> = ({ documents, onUploaded, onRefresh, onDel
         ) : (
           <ul className="space-y-2">
             {documents.map((doc) => (
-              <li key={doc.id} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2">
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium text-slate-800">{doc.name}</span>
+              <li
+                key={doc.id}
+                className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2"
+              >
+                <div className="flex-1 overflow-hidden">
+                  <span className="block truncate text-sm font-medium text-slate-800">{doc.name}</span>
                   <span className="text-xs text-slate-500">#{doc.id}</span>
                 </div>
                 {onDeleted && (
                   <button
-                    className="btn-ghost"
-                    style={{ marginLeft: 8 }}
+                    className="btn-ghost shrink-0"
                     onClick={() => handleDelete(doc.id)}
                     disabled={deletingId === doc.id}
                   >

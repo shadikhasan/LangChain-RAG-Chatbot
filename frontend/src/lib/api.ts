@@ -49,6 +49,16 @@ export const fetchAgents = async (): Promise<Agent[]> => {
   return res.data;
 };
 
+export const rebuildAgent = async (id: string): Promise<Agent> => {
+  const res = await http.post(`/agents/${id}/rebuild/`);
+  return res.data;
+};
+
+export const resetAgentKb = async (id: string): Promise<Agent> => {
+  const res = await http.post(`/agents/${id}/reset_kb/`);
+  return res.data;
+};
+
 export const deleteAgent = async (id: string) => {
   await http.delete(`/agents/${id}/`);
 };

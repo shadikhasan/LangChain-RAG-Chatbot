@@ -232,6 +232,7 @@ const CreateAgentPage: React.FC = () => {
                   }
                 }}
                 onDeleted={(id) => {
+                  setDocuments((prev) => prev.filter((d) => d.id !== id));
                   setSelectedDocIds((prev) => prev.filter((d) => d !== id));
                 }}
               />

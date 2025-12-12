@@ -2,7 +2,15 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AgentCard from "../components/AgentCard";
 import AgentEditModal from "../components/AgentEditModal";
-import { fetchAgents, fetchDocuments, fetchModels, updateAgent, deleteAgent } from "../lib/api";
+import {
+  fetchAgents,
+  fetchDocuments,
+  fetchModels,
+  updateAgent,
+  deleteAgent,
+  rebuildAgent,
+  resetAgentKb,
+} from "../lib/api";
 import { extractError } from "../lib/errors";
 import { Agent, AgentSettings as AgentSettingsType, ModelOption, UploadedDocument } from "../types";
 
@@ -30,6 +38,9 @@ const AgentsPage: React.FC = () => {
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<Agent | null>(null);
+  const [rebuilding, setRebuilding] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [rebuildStatus, setRebuildStatus] = useState("");
 
   useEffect(() => {
     const load = async () => {
@@ -91,6 +102,41 @@ const AgentsPage: React.FC = () => {
     }
   };
 
+  const rebuildKb = async () => {
+    if (!currentAgent) return;
+    setRebuilding(true);
+    setEditError("");
+    setRebuildStatus("");
+    try {
+      const updated = await rebuildAgent(currentAgent.id);
+      setAgents((prev) => [updated, ...prev.filter((a) => a.id !== updated.id)]);
+      setCurrentAgent(updated);
+      setRebuildStatus("Knowledge base rebuilt successfully.");
+    } catch (err: any) {
+      setEditError(extractError(err, "Failed to rebuild knowledge base"));
+    } finally {
+      setRebuilding(false);
+    }
+  };
+
+  const resetKb = async () => {
+    if (!currentAgent) return;
+    setResetting(true);
+    setEditError("");
+    setRebuildStatus("");
+    try {
+      const updated = await resetAgentKb(currentAgent.id);
+      setAgents((prev) => [updated, ...prev.filter((a) => a.id !== updated.id)]);
+      setCurrentAgent(updated);
+      setEditDocIds([]);
+      setRebuildStatus("Knowledge base reset. No documents linked.");
+    } catch (err: any) {
+      setEditError(extractError(err, "Failed to reset knowledge base"));
+    } finally {
+      setResetting(false);
+    }
+  };
+
   return (
     <div className="mx-auto max-w-6xl space-y-4 px-4 py-6">
       <div className="card p-6 space-y-3">
@@ -143,7 +189,10 @@ const AgentsPage: React.FC = () => {
         editDocIds={editDocIds}
         editSettings={editSettings}
         saving={saving}
+        rebuilding={rebuilding}
+        resetting={resetting}
         error={editError}
+        status={rebuildStatus}
         onClose={() => setShowEdit(false)}
         onChangeName={setEditName}
         onChangeModel={setEditModel}
@@ -153,6 +202,8 @@ const AgentsPage: React.FC = () => {
         }
         onChangeSettings={(vals) => setEditSettings((prev) => ({ ...prev, ...vals }))}
         onSave={saveEdit}
+        onRebuild={rebuildKb}
+        onReset={resetKb}
         onFileAdded={(doc) => setDocuments((prev) => [...prev, doc])}
         onFileDeleted={(id) => setDocuments((prev) => prev.filter((d) => d.id !== id))}
         onRefreshFiles={async () => {

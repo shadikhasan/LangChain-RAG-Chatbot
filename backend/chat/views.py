@@ -170,6 +170,18 @@ class AgentViewSet(viewsets.ModelViewSet):
         agent.save(update_fields=["store_path"])
         return Response(AgentSerializer(agent).data)
 
+    @action(detail=True, methods=["post"])
+    def reset_kb(self, request, pk=None):
+        """
+        Clears the agent's knowledge base and unlinks all documents.
+        """
+        agent = self.get_object()
+        self._safe_remove_store(agent.store_path)
+        agent.store_path = ""
+        agent.documents.clear()
+        agent.save(update_fields=["store_path"])
+        return Response(AgentSerializer(agent).data)
+
     @staticmethod
     def _safe_remove_store(path_str: str):
         if not path_str:
